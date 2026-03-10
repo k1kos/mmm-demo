@@ -192,13 +192,23 @@ def render_inputs():
         st.markdown("### Offline Media")
         st.caption("Broad-reach media typically used for awareness.")
         for channel in OFFLINE_CHANNELS:
-            st.number_input(channel, min_value=0.0, step=1000.0, key=f"spend_{channel}")
+            st.number_input(
+                channel,
+                min_value=0.0,
+                step=1000.0,
+                key=f"spend_{channel}",
+            )
 
     with col2:
         st.markdown("### Digital Media")
         st.caption("More targeted and performance-oriented channels.")
         for channel in DIGITAL_CHANNELS:
-            st.number_input(channel, min_value=0.0, step=1000.0, key=f"spend_{channel}")
+            st.number_input(
+                channel,
+                min_value=0.0,
+                step=1000.0,
+                key=f"spend_{channel}",
+            )
 
 
 def render_mix_summary():
@@ -216,8 +226,14 @@ def render_mix_summary():
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Total Spend", f"{total_spend:,.0f}")
-    c2.metric("Offline Spend", f"{mix_df.loc[mix_df['channel_group'] == 'Offline', 'spend'].sum():,.0f}")
-    c3.metric("Digital Spend", f"{mix_df.loc[mix_df['channel_group'] == 'Digital', 'spend'].sum():,.0f}")
+    c2.metric(
+        "Offline Spend",
+        f"{mix_df.loc[mix_df['channel_group'] == 'Offline', 'spend'].sum():,.0f}",
+    )
+    c3.metric(
+        "Digital Spend",
+        f"{mix_df.loc[mix_df['channel_group'] == 'Digital', 'spend'].sum():,.0f}",
+    )
 
     st.caption("This shows total budget and how it is split between Offline and Digital channels.")
 
@@ -330,7 +346,7 @@ def render_scenario_history(category: str, market: str):
     show_df["best_scenario"] = show_df["projected_profit_mid"].apply(
         lambda x: "🏆 Best" if float(x) == best_profit else ""
     )
-    show_df["change_vs_first_pct"] = show_df["revenue_delta_pct_vs_first"].round(2)
+    show_df["profit_change_vs_first_pct"] = show_df["profit_change_vs_first_pct"].round(2)
 
     display_cols = [
         "best_scenario",
@@ -340,7 +356,7 @@ def render_scenario_history(category: str, market: str):
         "incremental_revenue_mid",
         "total_revenue_mid",
         "projected_profit_mid",
-        "change_vs_first_pct",
+        "profit_change_vs_first_pct",
     ]
 
     def style_change_vs_first(val):
@@ -359,9 +375,9 @@ def render_scenario_history(category: str, market: str):
             "incremental_revenue_mid": "{:,.0f}",
             "total_revenue_mid": "{:,.0f}",
             "projected_profit_mid": "{:,.0f}",
-            "change_vs_first_pct": "{:+.2f}%",
+            "profit_change_vs_first_pct": "{:+.2f}%",
         }
-    ).map(style_change_vs_first, subset=["change_vs_first_pct"])
+    ).map(style_change_vs_first, subset=["profit_change_vs_first_pct"])
 
     st.dataframe(
         styled_df,
@@ -369,8 +385,8 @@ def render_scenario_history(category: str, market: str):
         hide_index=True,
     )
     st.caption(
-        "Change vs First % shows how projected total revenue changed relative to the first scenario ever run for this category and market. "
-        "Positive means revenue increased. Negative means revenue decreased."
+        "Profit Change vs First % compares projected profit against the first scenario run for this category and market. "
+        "Green means projected profit increased. Red means projected profit decreased."
     )
 
 
@@ -407,10 +423,12 @@ def main():
         seed_channel_spends_from_benchmarks(selected_category, selected_market)
         st.session_state["last_category_market_key"] = current_key
 
-    render_inputs()
-    render_mix_summary()
+    with st.form("scenario_form"):
+        render_inputs()
+        render_mix_summary()
+        run_clicked = st.form_submit_button("Run scenario", type="primary")
 
-    if st.button("Run scenario", type="primary"):
+    if run_clicked:
         scenario_id = f"{scenario_name.strip().replace(' ', '_').lower()}_{uuid.uuid4().hex[:8]}"
         inputs_df = build_input_dataframe(selected_category, selected_market, scenario_id)
 
@@ -420,7 +438,7 @@ def main():
         st.session_state["latest_scenario_id"] = scenario_id
         st.success(f"Scenario completed: {scenario_id}")
 
-    latest_scenario_id = st.session_state.get("latest_scenario_id")
+        latest_scenario_id = st.session_state.get("latest_scenario_id")
 
     if latest_scenario_id:
         summary_df = get_latest_scenario_summary(latest_scenario_id)

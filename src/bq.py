@@ -1,6 +1,7 @@
 from google.cloud import bigquery
 from google.api_core.retry import Retry
 import pandas as pd
+import streamlit as st
 
 BQ_RETRY = Retry(
     initial=1.0,
@@ -9,8 +10,11 @@ BQ_RETRY = Retry(
     deadline=120.0,
 )
 
+
+@st.cache_resource
 def get_client(project_id: str) -> bigquery.Client:
     return bigquery.Client(project=project_id)
+
 
 def load_dataframe(
     client: bigquery.Client,
@@ -26,6 +30,7 @@ def load_dataframe(
         timeout=120,
     )
     job.result(retry=BQ_RETRY)
+
 
 def run_query(client: bigquery.Client, query: str) -> pd.DataFrame:
     return client.query(query).to_dataframe()

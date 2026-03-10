@@ -1,7 +1,7 @@
-from datetime import datetime, timezone
 from typing import List
 
 import pandas as pd
+import streamlit as st
 
 from src.bq import get_client, load_dataframe, run_query
 from src.config import load_settings
@@ -17,6 +17,7 @@ def _get_client():
     return get_client(cfg["project_id"])
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def get_available_categories() -> List[str]:
     cfg = _get_cfg()
     client = _get_client()
@@ -30,6 +31,7 @@ def get_available_categories() -> List[str]:
     return df["category"].dropna().astype(str).tolist()
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def get_available_markets() -> List[str]:
     cfg = _get_cfg()
     client = _get_client()
@@ -43,6 +45,7 @@ def get_available_markets() -> List[str]:
     return df["market"].dropna().astype(str).tolist()
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def get_benchmark_rows(category: str, market: str) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -72,6 +75,7 @@ def get_benchmark_rows(category: str, market: str) -> pd.DataFrame:
     return run_query(client, query)
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def _get_avg_revenue_by_category_market() -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -87,6 +91,7 @@ def _get_avg_revenue_by_category_market() -> pd.DataFrame:
     return run_query(client, query)
 
 
+@st.cache_data(ttl=300, show_spinner=False)
 def _get_benchmarks_for_category_market(category: str, market: str) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -188,9 +193,11 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     result_table = f'{cfg["project_id"]}.{cfg["dataset"]}.scenario_results'
     load_dataframe(client, result_df, result_table, write_disposition="WRITE_APPEND")
 
+    st.cache_data.clear()
     return scenario_id
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -236,6 +243,7 @@ def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
     return run_query(client, query)
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def get_latest_channel_results(scenario_id: str) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -263,6 +271,8 @@ def get_latest_channel_results(scenario_id: str) -> pd.DataFrame:
     """
     return run_query(client, query)
 
+
+@st.cache_data(ttl=120, show_spinner=False)
 def get_scenario_history(limit: int = 50) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -311,6 +321,7 @@ def get_scenario_history(limit: int = 50) -> pd.DataFrame:
     return run_query(client, query)
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def get_scenario_history_for_category_market(category: str, market: str, limit: int = 50) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -362,7 +373,7 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
       SELECT
         scenario_id AS first_scenario_id,
         created_at AS first_created_at,
-        total_revenue_mid AS first_total_revenue_mid
+        projected_profit_mid AS first_projected_profit_mid
       FROM scenario_totals
       ORDER BY created_at ASC
       LIMIT 1
@@ -371,15 +382,15 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
       s.*,
       f.first_scenario_id,
       f.first_created_at,
-      f.first_total_revenue_mid,
-      s.total_revenue_mid - f.first_total_revenue_mid AS revenue_delta_vs_first,
+      f.first_projected_profit_mid,
+      s.projected_profit_mid - f.first_projected_profit_mid AS profit_delta_vs_first,
       ROUND(
         SAFE_DIVIDE(
-          s.total_revenue_mid - f.first_total_revenue_mid,
-          f.first_total_revenue_mid
+          s.projected_profit_mid - f.first_projected_profit_mid,
+          f.first_projected_profit_mid
         ) * 100,
         2
-      ) AS revenue_delta_pct_vs_first
+      ) AS profit_change_vs_first_pct
     FROM scenario_totals s
     CROSS JOIN first_scenario f
     ORDER BY s.created_at DESC
@@ -387,6 +398,8 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
     """
     return run_query(client, query)
 
+
+@st.cache_data(ttl=120, show_spinner=False)
 def get_first_scenario_id_for_category_market(category: str, market: str) -> str | None:
     cfg = _get_cfg()
     client = _get_client()
@@ -425,8 +438,10 @@ def clear_scenario_history(category: str | None = None, market: str | None = Non
 
     client.query(delete_inputs).result()
     client.query(delete_results).result()
+    st.cache_data.clear()
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def get_saved_scenarios(category: str, market: str, limit: int = 100) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -446,6 +461,7 @@ def get_saved_scenarios(category: str, market: str, limit: int = 100) -> pd.Data
     return run_query(client, query)
 
 
+@st.cache_data(ttl=120, show_spinner=False)
 def get_scenario_inputs_by_id(scenario_id: str) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
