@@ -1,0 +1,7 @@
+project_id: data-uplaod
+dataset: mmm_demo
+default_category: Retail
+default_market: EU
+start_date: 2024-01-01
+weeks: 52
+

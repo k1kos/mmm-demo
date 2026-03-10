@@ -1,0 +1,7 @@
+google-cloud-bigquery
+google-api-core
+pandas
+pyarrow
+python-dotenv
+PyYAML
+streamlit

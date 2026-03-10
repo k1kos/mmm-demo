@@ -1,0 +1,145 @@
+category,market,channel_group,channel,subchannel,roi_low,roi_mid,roi_high,adstock_rate,saturation_alpha,saturation_gamma,max_efficient_spend,confidence_score,source_label,suggested_spend
+Beverages,US,Offline,TV,National TV,0.70,1.10,1.60,0.55,1.60,90000,120000,0.68,synthetic_demo,45000
+Beverages,US,Offline,OOH,Billboards,0.55,0.90,1.30,0.30,1.40,45000,60000,0.62,synthetic_demo,18000
+Beverages,US,Offline,Radio,FM Radio,0.50,0.85,1.20,0.28,1.35,35000,50000,0.60,synthetic_demo,14000
+Beverages,US,Offline,Print,Magazines,0.30,0.55,0.85,0.18,1.50,25000,35000,0.45,synthetic_demo,7000
+Beverages,US,Digital,Paid Search,Google Search,1.10,1.70,2.30,0.10,1.15,30000,40000,0.74,synthetic_demo,16000
+Beverages,US,Digital,Social Media,Meta,0.80,1.25,1.80,0.18,1.25,30000,42000,0.70,synthetic_demo,15000
+Beverages,US,Digital,Online Video,YouTube,0.70,1.15,1.70,0.35,1.40,40000,55000,0.66,synthetic_demo,13000
+Beverages,US,Digital,Display,Programmatic,0.45,0.80,1.15,0.20,1.45,25000,35000,0.52,synthetic_demo,8000
+Beverages,US,Digital,Email,CRM,1.50,2.40,3.60,0.05,1.05,12000,18000,0.80,synthetic_demo,5000
+Beverages,EU,Offline,TV,National TV,0.65,1.00,1.45,0.55,1.60,75000,100000,0.66,synthetic_demo,38000
+Beverages,EU,Offline,OOH,Billboards,0.50,0.82,1.18,0.30,1.40,40000,55000,0.60,synthetic_demo,15000
+Beverages,EU,Offline,Radio,FM Radio,0.48,0.78,1.10,0.28,1.35,32000,45000,0.58,synthetic_demo,12000
+Beverages,EU,Offline,Print,Magazines,0.28,0.50,0.78,0.18,1.50,22000,32000,0.44,synthetic_demo,6000
+Beverages,EU,Digital,Paid Search,Google Search,1.00,1.55,2.10,0.10,1.15,26000,36000,0.72,synthetic_demo,14000
+Beverages,EU,Digital,Social Media,Meta,0.75,1.15,1.65,0.18,1.25,26000,36000,0.68,synthetic_demo,13000
+Beverages,EU,Digital,Online Video,YouTube,0.68,1.05,1.55,0.35,1.40,34000,47000,0.64,synthetic_demo,11000
+Beverages,EU,Digital,Display,Programmatic,0.42,0.72,1.05,0.20,1.45,22000,32000,0.50,synthetic_demo,7000
+Beverages,EU,Digital,Email,CRM,1.45,2.20,3.30,0.05,1.05,10000,16000,0.78,synthetic_demo,4500
+Automotive,US,Offline,TV,National TV,0.80,1.20,1.70,0.60,1.70,110000,150000,0.70,synthetic_demo,52000
+Automotive,US,Offline,OOH,Billboards,0.60,0.95,1.35,0.35,1.45,50000,70000,0.64,synthetic_demo,20000
+Automotive,US,Offline,Radio,FM Radio,0.55,0.88,1.25,0.30,1.38,42000,58000,0.60,synthetic_demo,15000
+Automotive,US,Offline,Print,Magazines,0.35,0.60,0.90,0.20,1.55,28000,40000,0.46,synthetic_demo,8000
+Automotive,US,Digital,Paid Search,Google Search,1.25,1.90,2.50,0.12,1.18,36000,50000,0.76,synthetic_demo,19000
+Automotive,US,Digital,Social Media,Meta,0.82,1.28,1.85,0.20,1.28,32000,45000,0.68,synthetic_demo,14000
+Automotive,US,Digital,Online Video,YouTube,0.78,1.22,1.78,0.38,1.42,45000,65000,0.68,synthetic_demo,16000
+Automotive,US,Digital,Display,Programmatic,0.50,0.85,1.20,0.22,1.48,26000,38000,0.54,synthetic_demo,9000
+Automotive,US,Digital,Email,CRM,1.20,1.95,2.90,0.06,1.08,12000,17000,0.72,synthetic_demo,4000
+Automotive,EU,Offline,TV,National TV,0.75,1.12,1.58,0.60,1.70,95000,130000,0.68,synthetic_demo,45000
+Automotive,EU,Offline,OOH,Billboards,0.55,0.88,1.25,0.35,1.45,45000,62000,0.62,synthetic_demo,17000
+Automotive,EU,Offline,Radio,FM Radio,0.52,0.82,1.18,0.30,1.38,38000,52000,0.58,synthetic_demo,14000
+Automotive,EU,Offline,Print,Magazines,0.32,0.55,0.82,0.20,1.55,25000,36000,0.45,synthetic_demo,7000
+Automotive,EU,Digital,Paid Search,Google Search,1.15,1.75,2.30,0.12,1.18,32000,45000,0.74,synthetic_demo,17000
+Automotive,EU,Digital,Social Media,Meta,0.78,1.20,1.72,0.20,1.28,29000,40000,0.66,synthetic_demo,13000
+Automotive,EU,Digital,Online Video,YouTube,0.74,1.15,1.68,0.38,1.42,40000,58000,0.66,synthetic_demo,14000
+Automotive,EU,Digital,Display,Programmatic,0.48,0.80,1.12,0.22,1.48,24000,34000,0.52,synthetic_demo,8000
+Automotive,EU,Digital,Email,CRM,1.15,1.85,2.70,0.06,1.08,11000,16000,0.70,synthetic_demo,3500
+Banking,US,Offline,TV,National TV,0.60,0.95,1.35,0.48,1.55,80000,110000,0.64,synthetic_demo,30000
+Banking,US,Offline,OOH,Billboards,0.48,0.78,1.10,0.26,1.38,35000,50000,0.56,synthetic_demo,12000
+Banking,US,Offline,Radio,FM Radio,0.50,0.80,1.12,0.25,1.34,33000,46000,0.58,synthetic_demo,11000
+Banking,US,Offline,Print,Magazines,0.28,0.50,0.76,0.18,1.50,20000,30000,0.42,synthetic_demo,5000
+Banking,US,Digital,Paid Search,Google Search,1.30,2.00,2.70,0.08,1.12,28000,38000,0.80,synthetic_demo,18000
+Banking,US,Digital,Social Media,Meta,0.75,1.18,1.68,0.16,1.20,24000,34000,0.66,synthetic_demo,11000
+Banking,US,Digital,Online Video,YouTube,0.62,1.00,1.45,0.30,1.34,30000,45000,0.60,synthetic_demo,9000
+Banking,US,Digital,Display,Programmatic,0.42,0.72,1.02,0.18,1.40,22000,32000,0.48,synthetic_demo,7000
+Banking,US,Digital,Email,CRM,1.60,2.60,3.90,0.05,1.02,10000,15000,0.82,synthetic_demo,4500
+Banking,EU,Offline,TV,National TV,0.56,0.88,1.25,0.48,1.55,70000,100000,0.62,synthetic_demo,26000
+Banking,EU,Offline,OOH,Billboards,0.45,0.72,1.02,0.26,1.38,32000,45000,0.54,synthetic_demo,10000
+Banking,EU,Offline,Radio,FM Radio,0.46,0.74,1.05,0.25,1.34,30000,42000,0.56,synthetic_demo,9500
+Banking,EU,Offline,Print,Magazines,0.26,0.46,0.70,0.18,1.50,18000,28000,0.40,synthetic_demo,4500
+Banking,EU,Digital,Paid Search,Google Search,1.20,1.85,2.45,0.08,1.12,25000,34000,0.78,synthetic_demo,16000
+Banking,EU,Digital,Social Media,Meta,0.70,1.08,1.55,0.16,1.20,22000,31000,0.64,synthetic_demo,10000
+Banking,EU,Digital,Online Video,YouTube,0.58,0.92,1.35,0.30,1.34,28000,40000,0.58,synthetic_demo,8500
+Banking,EU,Digital,Display,Programmatic,0.40,0.68,0.95,0.18,1.40,20000,29000,0.46,synthetic_demo,6500
+Banking,EU,Digital,Email,CRM,1.55,2.45,3.65,0.05,1.02,9000,14000,0.80,synthetic_demo,4200
+Retail,US,Offline,TV,National TV,0.68,1.05,1.50,0.50,1.58,85000,115000,0.66,synthetic_demo,34000
+Retail,US,Offline,OOH,Billboards,0.52,0.84,1.18,0.28,1.40,38000,52000,0.60,synthetic_demo,14000
+Retail,US,Offline,Radio,FM Radio,0.48,0.80,1.12,0.24,1.34,34000,47000,0.58,synthetic_demo,12000
+Retail,US,Offline,Print,Magazines,0.26,0.48,0.72,0.16,1.48,21000,30000,0.42,synthetic_demo,5000
+Retail,US,Digital,Paid Search,Google Search,1.35,2.10,2.80,0.10,1.10,32000,45000,0.82,synthetic_demo,22000
+Retail,US,Digital,Social Media,Meta,0.90,1.40,2.00,0.18,1.22,28000,40000,0.72,synthetic_demo,16000
+Retail,US,Digital,Online Video,YouTube,0.72,1.12,1.60,0.34,1.36,36000,52000,0.64,synthetic_demo,12000
+Retail,US,Digital,Display,Programmatic,0.48,0.82,1.16,0.20,1.42,24000,34000,0.50,synthetic_demo,8500
+Retail,US,Digital,Email,CRM,1.80,2.90,4.20,0.05,1.00,12000,17000,0.84,synthetic_demo,7000
+Retail,EU,Offline,TV,National TV,0.62,0.96,1.38,0.50,1.58,76000,105000,0.64,synthetic_demo,30000
+Retail,EU,Offline,OOH,Billboards,0.48,0.78,1.08,0.28,1.40,34000,47000,0.58,synthetic_demo,12000
+Retail,EU,Offline,Radio,FM Radio,0.45,0.74,1.02,0.24,1.34,31000,43000,0.56,synthetic_demo,10000
+Retail,EU,Offline,Print,Magazines,0.24,0.44,0.66,0.16,1.48,19000,27000,0.40,synthetic_demo,4500
+Retail,EU,Digital,Paid Search,Google Search,1.25,1.95,2.60,0.10,1.10,29000,40000,0.80,synthetic_demo,19000
+Retail,EU,Digital,Social Media,Meta,0.84,1.30,1.86,0.18,1.22,26000,36000,0.70,synthetic_demo,14500
+Retail,EU,Digital,Online Video,YouTube,0.68,1.05,1.50,0.34,1.36,33000,47000,0.62,synthetic_demo,10500
+Retail,EU,Digital,Display,Programmatic,0.45,0.76,1.08,0.20,1.42,22000,31000,0.48,synthetic_demo,7500
+Retail,EU,Digital,Email,CRM,1.72,2.75,4.00,0.05,1.00,11000,16000,0.82,synthetic_demo,6500
+Telecom,US,Offline,TV,National TV,0.72,1.10,1.55,0.54,1.62,90000,125000,0.68,synthetic_demo,36000
+Telecom,US,Offline,OOH,Billboards,0.54,0.86,1.20,0.30,1.42,40000,56000,0.60,synthetic_demo,14000
+Telecom,US,Offline,Radio,FM Radio,0.50,0.82,1.15,0.26,1.36,35000,50000,0.58,synthetic_demo,12000
+Telecom,US,Offline,Print,Magazines,0.26,0.46,0.70,0.16,1.50,20000,30000,0.40,synthetic_demo,4500
+Telecom,US,Digital,Paid Search,Google Search,1.20,1.85,2.45,0.10,1.14,30000,42000,0.78,synthetic_demo,18000
+Telecom,US,Digital,Social Media,Meta,0.82,1.28,1.82,0.18,1.24,27000,39000,0.70,synthetic_demo,14000
+Telecom,US,Digital,Online Video,YouTube,0.70,1.08,1.55,0.34,1.38,35000,50000,0.64,synthetic_demo,12000
+Telecom,US,Digital,Display,Programmatic,0.46,0.78,1.10,0.20,1.44,23000,33000,0.50,synthetic_demo,8000
+Telecom,US,Digital,Email,CRM,1.45,2.30,3.40,0.05,1.02,11000,16000,0.80,synthetic_demo,5000
+Telecom,EU,Offline,TV,National TV,0.68,1.02,1.45,0.54,1.62,80000,112000,0.66,synthetic_demo,32000
+Telecom,EU,Offline,OOH,Billboards,0.50,0.80,1.12,0.30,1.42,36000,50000,0.58,synthetic_demo,12000
+Telecom,EU,Offline,Radio,FM Radio,0.46,0.76,1.06,0.26,1.36,32000,45000,0.56,synthetic_demo,10000
+Telecom,EU,Offline,Print,Magazines,0.24,0.42,0.64,0.16,1.50,18000,27000,0.38,synthetic_demo,4000
+Telecom,EU,Digital,Paid Search,Google Search,1.12,1.72,2.28,0.10,1.14,27000,38000,0.76,synthetic_demo,16000
+Telecom,EU,Digital,Social Media,Meta,0.76,1.18,1.68,0.18,1.24,25000,35000,0.68,synthetic_demo,12500
+Telecom,EU,Digital,Online Video,YouTube,0.66,1.00,1.45,0.34,1.38,32000,46000,0.62,synthetic_demo,10500
+Telecom,EU,Digital,Display,Programmatic,0.44,0.72,1.02,0.20,1.44,21000,30000,0.48,synthetic_demo,7000
+Telecom,EU,Digital,Email,CRM,1.38,2.15,3.20,0.05,1.02,10000,15000,0.78,synthetic_demo,4500
+Travel,US,Offline,TV,National TV,0.66,1.02,1.48,0.52,1.58,85000,115000,0.66,synthetic_demo,32000
+Travel,US,Offline,OOH,Transit,0.50,0.82,1.15,0.28,1.40,38000,52000,0.58,synthetic_demo,13000
+Travel,US,Offline,Radio,FM Radio,0.46,0.76,1.08,0.24,1.34,33000,46000,0.56,synthetic_demo,11000
+Travel,US,Offline,Print,Magazines,0.24,0.44,0.68,0.16,1.48,19000,28000,0.38,synthetic_demo,4000
+Travel,US,Digital,Paid Search,Google Search,1.40,2.20,2.95,0.10,1.12,34000,47000,0.84,synthetic_demo,24000
+Travel,US,Digital,Social Media,Meta,0.88,1.38,1.98,0.18,1.24,28000,41000,0.72,synthetic_demo,15000
+Travel,US,Digital,Online Video,YouTube,0.76,1.18,1.70,0.36,1.38,37000,54000,0.66,synthetic_demo,13000
+Travel,US,Digital,Display,Programmatic,0.48,0.82,1.16,0.20,1.42,24000,34000,0.50,synthetic_demo,8000
+Travel,US,Digital,Email,CRM,1.65,2.65,3.90,0.05,1.02,11000,16000,0.82,synthetic_demo,5500
+Travel,EU,Offline,TV,National TV,0.60,0.94,1.35,0.52,1.58,76000,105000,0.64,synthetic_demo,28000
+Travel,EU,Offline,OOH,Transit,0.46,0.74,1.05,0.28,1.40,34000,47000,0.56,synthetic_demo,11000
+Travel,EU,Offline,Radio,FM Radio,0.42,0.70,0.98,0.24,1.34,30000,42000,0.54,synthetic_demo,9500
+Travel,EU,Offline,Print,Magazines,0.22,0.40,0.62,0.16,1.48,17000,26000,0.36,synthetic_demo,3500
+Travel,EU,Digital,Paid Search,Google Search,1.30,2.02,2.70,0.10,1.12,30000,42000,0.82,synthetic_demo,21000
+Travel,EU,Digital,Social Media,Meta,0.82,1.28,1.82,0.18,1.24,25000,37000,0.70,synthetic_demo,13500
+Travel,EU,Digital,Online Video,YouTube,0.72,1.10,1.58,0.36,1.38,34000,49000,0.64,synthetic_demo,11500
+Travel,EU,Digital,Display,Programmatic,0.46,0.76,1.08,0.20,1.42,22000,32000,0.48,synthetic_demo,7500
+Travel,EU,Digital,Email,CRM,1.58,2.50,3.70,0.05,1.02,10000,15000,0.80,synthetic_demo,5000
+Insurance,US,Offline,TV,National TV,0.58,0.92,1.30,0.50,1.56,78000,108000,0.64,synthetic_demo,28000
+Insurance,US,Offline,OOH,Billboards,0.44,0.72,1.02,0.26,1.38,33000,47000,0.54,synthetic_demo,10000
+Insurance,US,Offline,Radio,FM Radio,0.46,0.74,1.04,0.24,1.34,30000,42000,0.56,synthetic_demo,9500
+Insurance,US,Offline,Print,Magazines,0.25,0.44,0.66,0.16,1.48,18000,27000,0.40,synthetic_demo,4000
+Insurance,US,Digital,Paid Search,Google Search,1.28,1.95,2.60,0.08,1.10,28000,39000,0.80,synthetic_demo,17000
+Insurance,US,Digital,Social Media,Meta,0.70,1.10,1.58,0.16,1.20,23000,33000,0.64,synthetic_demo,10000
+Insurance,US,Digital,Online Video,YouTube,0.60,0.95,1.38,0.30,1.34,28000,41000,0.58,synthetic_demo,8000
+Insurance,US,Digital,Display,Programmatic,0.40,0.68,0.98,0.18,1.40,21000,30000,0.46,synthetic_demo,6500
+Insurance,US,Digital,Email,CRM,1.55,2.45,3.60,0.05,1.02,9000,14000,0.82,synthetic_demo,4200
+Insurance,EU,Offline,TV,National TV,0.54,0.84,1.20,0.50,1.56,68000,95000,0.62,synthetic_demo,24000
+Insurance,EU,Offline,OOH,Billboards,0.40,0.66,0.94,0.26,1.38,30000,42000,0.52,synthetic_demo,9000
+Insurance,EU,Offline,Radio,FM Radio,0.42,0.68,0.96,0.24,1.34,28000,39000,0.54,synthetic_demo,8500
+Insurance,EU,Offline,Print,Magazines,0.22,0.40,0.60,0.16,1.48,17000,25000,0.38,synthetic_demo,3500
+Insurance,EU,Digital,Paid Search,Google Search,1.18,1.82,2.40,0.08,1.10,25000,35000,0.78,synthetic_demo,15000
+Insurance,EU,Digital,Social Media,Meta,0.66,1.02,1.46,0.16,1.20,21000,30000,0.62,synthetic_demo,9000
+Insurance,EU,Digital,Online Video,YouTube,0.56,0.88,1.28,0.30,1.34,26000,38000,0.56,synthetic_demo,7500
+Insurance,EU,Digital,Display,Programmatic,0.38,0.64,0.90,0.18,1.40,19000,27000,0.44,synthetic_demo,6000
+Insurance,EU,Digital,Email,CRM,1.48,2.30,3.40,0.05,1.02,8500,13000,0.80,synthetic_demo,4000
+Pharma,US,Offline,TV,National TV,0.62,0.98,1.40,0.54,1.60,82000,112000,0.66,synthetic_demo,30000
+Pharma,US,Offline,OOH,Billboards,0.46,0.76,1.08,0.28,1.40,35000,50000,0.56,synthetic_demo,11000
+Pharma,US,Offline,Radio,FM Radio,0.44,0.72,1.02,0.24,1.34,30000,43000,0.54,synthetic_demo,9500
+Pharma,US,Offline,Print,Magazines,0.28,0.48,0.72,0.18,1.50,20000,30000,0.42,synthetic_demo,4500
+Pharma,US,Digital,Paid Search,Google Search,1.10,1.72,2.30,0.08,1.12,26000,36000,0.76,synthetic_demo,15000
+Pharma,US,Digital,Social Media,Meta,0.62,0.98,1.42,0.16,1.22,22000,32000,0.60,synthetic_demo,8500
+Pharma,US,Digital,Online Video,YouTube,0.58,0.92,1.32,0.32,1.36,28000,42000,0.58,synthetic_demo,8000
+Pharma,US,Digital,Display,Programmatic,0.38,0.66,0.95,0.18,1.40,20000,29000,0.44,synthetic_demo,6000
+Pharma,US,Digital,Email,CRM,1.35,2.15,3.15,0.05,1.04,9000,13500,0.78,synthetic_demo,3800
+Pharma,EU,Offline,TV,National TV,0.58,0.90,1.28,0.54,1.60,72000,100000,0.64,synthetic_demo,26000
+Pharma,EU,Offline,OOH,Billboards,0.42,0.70,1.00,0.28,1.40,32000,45000,0.54,synthetic_demo,9500
+Pharma,EU,Offline,Radio,FM Radio,0.40,0.66,0.94,0.24,1.34,28000,40000,0.52,synthetic_demo,8500
+Pharma,EU,Offline,Print,Magazines,0.26,0.44,0.66,0.18,1.50,18000,27000,0.40,synthetic_demo,4000
+Pharma,EU,Digital,Paid Search,Google Search,1.02,1.60,2.12,0.08,1.12,23000,33000,0.74,synthetic_demo,13000
+Pharma,EU,Digital,Social Media,Meta,0.58,0.90,1.30,0.16,1.22,20000,29000,0.58,synthetic_demo,7800
+Pharma,EU,Digital,Online Video,YouTube,0.54,0.84,1.22,0.32,1.36,26000,38000,0.56,synthetic_demo,7200
+Pharma,EU,Digital,Display,Programmatic,0.36,0.60,0.88,0.18,1.40,18000,26000,0.42,synthetic_demo,5500
+Pharma,EU,Digital,Email,CRM,1.28,2.00,2.95,0.05,1.04,8500,12500,0.76,synthetic_demo,3500
