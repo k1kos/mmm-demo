@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.demo_business_kpis` (
 
 CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.scenario_inputs` (
   scenario_id STRING,
+  scenario_label STRING,
+  scenario_note STRING,
   created_at TIMESTAMP,
   category STRING,
   market STRING,
@@ -54,6 +56,8 @@ CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.scenario_results` (
   channel_group STRING,
   channel STRING,
   subchannel STRING,
+  scenario_label STRING,
+  scenario_note STRING,
   spend FLOAT64,
   incremental_revenue_low FLOAT64,
   incremental_revenue_mid FLOAT64,

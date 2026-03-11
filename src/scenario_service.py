@@ -129,6 +129,8 @@ def save_scenario_inputs(inputs_df: pd.DataFrame) -> None:
 
     expected_cols = [
         "scenario_id",
+        "scenario_label",
+        "scenario_note",
         "created_at",
         "category",
         "market",
@@ -154,7 +156,16 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     if inputs_df.empty:
         raise ValueError("inputs_df is empty")
 
-    required = {"scenario_id", "category", "market", "channel_group", "channel", "spend"}
+    required = {
+        "scenario_id",
+        "scenario_label",
+        "scenario_note",
+        "category",
+        "market",
+        "channel_group",
+        "channel",
+        "spend",
+    }
     missing = required - set(inputs_df.columns)
     if missing:
         raise ValueError(f"Missing required input columns: {', '.join(sorted(missing))}")
@@ -162,6 +173,8 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     category = str(inputs_df["category"].iloc[0])
     market = str(inputs_df["market"].iloc[0])
     scenario_id = str(inputs_df["scenario_id"].iloc[0])
+    scenario_label = str(inputs_df["scenario_label"].iloc[0])
+    scenario_note = str(inputs_df["scenario_note"].iloc[0])
 
     if inputs_df["scenario_id"].nunique() != 1:
         raise ValueError("inputs_df must contain exactly one scenario_id")
@@ -176,7 +189,6 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
         raise ValueError(f"No benchmark rows found for category={category}, market={market}")
 
     kpi_df = _get_avg_revenue_by_category_market()
-
     model_inputs_df = inputs_df.copy()
 
     result_df = run_scenario_model(
@@ -187,6 +199,35 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     )
 
     result_df["created_at"] = pd.to_datetime(result_df["created_at"], utc=True)
+    result_df["scenario_label"] = scenario_label
+    result_df["scenario_note"] = scenario_note
+
+    ordered_cols = [
+        "scenario_id",
+        "scenario_label",
+        "scenario_note",
+        "created_at",
+        "category",
+        "market",
+        "channel_group",
+        "channel",
+        "subchannel",
+        "spend",
+        "incremental_revenue_low",
+        "incremental_revenue_mid",
+        "incremental_revenue_high",
+        "roi_low",
+        "roi_mid",
+        "roi_high",
+        "saturation_flag",
+        "baseline_revenue",
+        "total_revenue_low",
+        "total_revenue_mid",
+        "total_revenue_high",
+        "confidence_score",
+        "source_label",
+    ]
+    result_df = result_df[ordered_cols]
 
     cfg = _get_cfg()
     client = _get_client()
@@ -214,6 +255,8 @@ def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
     agg AS (
       SELECT
         scenario_id,
+        ANY_VALUE(scenario_label) AS scenario_label,
+        ANY_VALUE(scenario_note) AS scenario_note,
         category,
         market,
         SUM(spend) AS total_spend,
@@ -222,10 +265,12 @@ def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
         SUM(incremental_revenue_high) AS incremental_revenue_high
       FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
       WHERE scenario_id = '{scenario_id}'
-      GROUP BY 1,2,3
+      GROUP BY 1,4,5
     )
     SELECT
       a.scenario_id,
+      a.scenario_label,
+      a.scenario_note,
       a.category,
       a.market,
       a.total_spend,
@@ -251,6 +296,8 @@ def get_latest_channel_results(scenario_id: str) -> pd.DataFrame:
     query = f"""
     SELECT
       scenario_id,
+      scenario_label,
+      scenario_note,
       category,
       market,
       channel_group,
@@ -273,55 +320,6 @@ def get_latest_channel_results(scenario_id: str) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=120, show_spinner=False)
-def get_scenario_history(limit: int = 50) -> pd.DataFrame:
-    cfg = _get_cfg()
-    client = _get_client()
-
-    query = f"""
-    WITH base AS (
-      SELECT
-        category,
-        market,
-        AVG(revenue) AS baseline_revenue
-      FROM `{cfg["project_id"]}.{cfg["dataset"]}.demo_business_kpis`
-      GROUP BY 1,2
-    ),
-    agg AS (
-      SELECT
-        scenario_id,
-        category,
-        market,
-        MIN(created_at) AS created_at,
-        SUM(spend) AS total_spend,
-        SUM(incremental_revenue_low) AS incremental_revenue_low,
-        SUM(incremental_revenue_mid) AS incremental_revenue_mid,
-        SUM(incremental_revenue_high) AS incremental_revenue_high
-      FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
-      GROUP BY 1,2,3
-    )
-    SELECT
-      a.scenario_id,
-      a.category,
-      a.market,
-      a.created_at,
-      a.total_spend,
-      a.incremental_revenue_low,
-      a.incremental_revenue_mid,
-      a.incremental_revenue_high,
-      b.baseline_revenue + a.incremental_revenue_low AS total_revenue_low,
-      b.baseline_revenue + a.incremental_revenue_mid AS total_revenue_mid,
-      b.baseline_revenue + a.incremental_revenue_high AS total_revenue_high
-    FROM agg a
-    JOIN base b
-      ON a.category = b.category
-     AND a.market = b.market
-    ORDER BY a.created_at DESC
-    LIMIT {int(limit)}
-    """
-    return run_query(client, query)
-
-
-@st.cache_data(ttl=120, show_spinner=False)
 def get_scenario_history_for_category_market(category: str, market: str, limit: int = 50) -> pd.DataFrame:
     cfg = _get_cfg()
     client = _get_client()
@@ -338,6 +336,8 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
     agg AS (
       SELECT
         scenario_id,
+        ANY_VALUE(scenario_label) AS scenario_label,
+        ANY_VALUE(scenario_note) AS scenario_note,
         category,
         market,
         MIN(created_at) AS created_at,
@@ -348,11 +348,13 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
       FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
       WHERE category = '{category}'
         AND market = '{market}'
-      GROUP BY 1,2,3
+      GROUP BY 1,4,5
     ),
     scenario_totals AS (
       SELECT
         a.scenario_id,
+        a.scenario_label,
+        a.scenario_note,
         a.category,
         a.market,
         a.created_at,
@@ -399,26 +401,6 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
     return run_query(client, query)
 
 
-@st.cache_data(ttl=120, show_spinner=False)
-def get_first_scenario_id_for_category_market(category: str, market: str) -> str | None:
-    cfg = _get_cfg()
-    client = _get_client()
-
-    query = f"""
-    SELECT scenario_id
-    FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
-    WHERE category = '{category}'
-      AND market = '{market}'
-    GROUP BY scenario_id
-    ORDER BY MIN(created_at) ASC
-    LIMIT 1
-    """
-    df = run_query(client, query)
-    if df.empty:
-        return None
-    return str(df.iloc[0]["scenario_id"])
-
-
 def clear_scenario_history(category: str | None = None, market: str | None = None) -> None:
     cfg = _get_cfg()
     client = _get_client()
@@ -448,14 +430,17 @@ def get_saved_scenarios(category: str, market: str, limit: int = 100) -> pd.Data
 
     query = f"""
     SELECT
-      scenario_id,
-      MIN(created_at) AS created_at,
-      SUM(spend) AS total_spend
+      scenario_label,
+      MIN(created_at) AS first_created_at,
+      MAX(created_at) AS last_created_at,
+      COUNT(DISTINCT scenario_id) AS version_count,
+      ARRAY_AGG(scenario_id ORDER BY created_at DESC LIMIT 1)[OFFSET(0)] AS latest_scenario_id,
+      ARRAY_AGG(scenario_note IGNORE NULLS ORDER BY created_at DESC LIMIT 1)[OFFSET(0)] AS latest_scenario_note
     FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_inputs`
     WHERE category = '{category}'
       AND market = '{market}'
-    GROUP BY scenario_id
-    ORDER BY created_at DESC
+    GROUP BY scenario_label
+    ORDER BY last_created_at DESC
     LIMIT {int(limit)}
     """
     return run_query(client, query)
@@ -469,6 +454,8 @@ def get_scenario_inputs_by_id(scenario_id: str) -> pd.DataFrame:
     query = f"""
     SELECT
       scenario_id,
+      scenario_label,
+      scenario_note,
       created_at,
       category,
       market,
@@ -480,3 +467,23 @@ def get_scenario_inputs_by_id(scenario_id: str) -> pd.DataFrame:
     ORDER BY channel_group, channel
     """
     return run_query(client, query)
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def get_latest_scenario_id_by_label(category: str, market: str, scenario_label: str) -> str | None:
+    cfg = _get_cfg()
+    client = _get_client()
+
+    query = f"""
+    SELECT scenario_id
+    FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_inputs`
+    WHERE category = '{category}'
+      AND market = '{market}'
+      AND scenario_label = '{scenario_label}'
+    ORDER BY created_at DESC
+    LIMIT 1
+    """
+    df = run_query(client, query)
+    if df.empty:
+        return None
+    return str(df.iloc[0]["scenario_id"])
