@@ -53,11 +53,17 @@ def initialize_session_state(default_category: str, default_market: str):
     if "confidence_mode" not in st.session_state:
         st.session_state["confidence_mode"] = "Base"
 
-    if "baseline_scenario_id" not in st.session_state:
-        st.session_state["baseline_scenario_id"] = ""
+    if "baseline_scenario_label" not in st.session_state:
+        st.session_state["baseline_scenario_label"] = ""
 
     if "scenario_note" not in st.session_state:
         st.session_state["scenario_note"] = ""
+
+    if "base_revenue" not in st.session_state:
+        st.session_state["base_revenue"] = 250000.0
+
+    if "margin_pct" not in st.session_state:
+        st.session_state["margin_pct"] = 35.0
 
     for channel in OFFLINE_CHANNELS + DIGITAL_CHANNELS:
         key = f"spend_{channel}"
@@ -112,6 +118,8 @@ def build_input_dataframe(category: str, market: str, scenario_id: str, scenario
                 "channel_group": "Offline",
                 "channel": channel,
                 "spend": float(st.session_state[f"spend_{channel}"]),
+                "base_revenue": float(st.session_state["base_revenue"]),
+                "margin_pct": float(st.session_state["margin_pct"]),
             }
         )
 
@@ -126,6 +134,8 @@ def build_input_dataframe(category: str, market: str, scenario_id: str, scenario
                 "channel_group": "Digital",
                 "channel": channel,
                 "spend": float(st.session_state[f"spend_{channel}"]),
+                "base_revenue": float(st.session_state["base_revenue"]),
+                "margin_pct": float(st.session_state["margin_pct"]),
             }
         )
 
@@ -152,6 +162,12 @@ def load_scenario_into_form(scenario_id: str):
 
     if "scenario_note" in scenario_df.columns and pd.notna(scenario_df.iloc[0]["scenario_note"]):
         st.session_state["scenario_note"] = str(scenario_df.iloc[0]["scenario_note"])
+
+    if "base_revenue" in scenario_df.columns and pd.notna(scenario_df.iloc[0]["base_revenue"]):
+        st.session_state["base_revenue"] = float(scenario_df.iloc[0]["base_revenue"])
+
+    if "margin_pct" in scenario_df.columns and pd.notna(scenario_df.iloc[0]["margin_pct"]):
+        st.session_state["margin_pct"] = float(scenario_df.iloc[0]["margin_pct"])
 
 
 def make_bar_chart(
@@ -246,7 +262,7 @@ def make_history_chart(df: pd.DataFrame, metric_col: str, title: str):
         alt.Chart(df)
         .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6)
         .encode(
-            x=alt.X("scenario_id:N", sort="-y", title="Scenario"),
+            x=alt.X("scenario_label:N", sort="-y", title="Scenario"),
             y=alt.Y(f"{metric_col}:Q", title=metric_col.replace("_", " ").title()),
             color=alt.condition(
                 alt.datum[metric_col] > 0,
@@ -254,6 +270,7 @@ def make_history_chart(df: pd.DataFrame, metric_col: str, title: str):
                 alt.value("#DC2626"),
             ) if is_profit else alt.value("#4F46E5"),
             tooltip=[
+                "scenario_label",
                 "scenario_id",
                 alt.Tooltip(metric_col, format=",.0f"),
                 "created_at",
@@ -269,7 +286,7 @@ def make_history_chart(df: pd.DataFrame, metric_col: str, title: str):
             color="#ffffff",
         )
         .encode(
-            x=alt.X("scenario_id:N", sort="-y"),
+            x=alt.X("scenario_label:N", sort="-y"),
             y=alt.Y(f"{metric_col}:Q", stack="zero"),
             text=alt.Text(f"{metric_col}:Q", format=",.0f"),
         )
@@ -279,7 +296,7 @@ def make_history_chart(df: pd.DataFrame, metric_col: str, title: str):
 
 
 def make_profit_delta_chart(df: pd.DataFrame, title: str):
-    chart = (
+    return (
         alt.Chart(df)
         .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6)
         .encode(
@@ -297,7 +314,6 @@ def make_profit_delta_chart(df: pd.DataFrame, title: str):
         )
         .properties(title=title, height=360)
     )
-    return chart
 
 
 def prepare_channel_metrics(channel_df: pd.DataFrame, mode: str) -> pd.DataFrame:
@@ -307,9 +323,10 @@ def prepare_channel_metrics(channel_df: pd.DataFrame, mode: str) -> pd.DataFrame
     df = channel_df.copy()
     total_spend = float(df["spend"].sum()) if not df.empty else 0.0
     total_incremental = float(df[revenue_col].sum()) if not df.empty else 0.0
+    margin_pct = float(df["margin_pct"].iloc[0]) if "margin_pct" in df.columns and not df.empty else 100.0
 
     df["selected_incremental_revenue"] = df[revenue_col]
-    df["projected_channel_profit"] = df["selected_incremental_revenue"] - df["spend"]
+    df["projected_channel_profit"] = (df["selected_incremental_revenue"] * (margin_pct / 100.0)) - df["spend"]
     df["spend_share_pct"] = (df["spend"] / total_spend * 100) if total_spend else 0.0
     df["contribution_share_pct"] = (df["selected_incremental_revenue"] / total_incremental * 100) if total_incremental else 0.0
     df["efficiency_index"] = (df["contribution_share_pct"] / df["spend_share_pct"]) if total_spend and total_incremental else 0.0
@@ -333,9 +350,7 @@ def build_comparison_channel_df(current_df: pd.DataFrame, baseline_df: pd.DataFr
 
     merged = current_metrics.merge(baseline_metrics, on="channel", how="outer").fillna(0)
     merged["delta_spend"] = merged["current_spend"] - merged["baseline_spend"]
-    merged["delta_projected_channel_profit"] = (
-        merged["current_projected_channel_profit"] - merged["baseline_projected_channel_profit"]
-    )
+    merged["delta_projected_channel_profit"] = merged["current_projected_channel_profit"] - merged["baseline_projected_channel_profit"]
     return merged
 
 
@@ -359,6 +374,28 @@ def render_sidebar(categories, markets):
         else 0,
     )
 
+    st.sidebar.markdown("---")
+    st.sidebar.subheader("Baseline Business Inputs")
+
+    st.sidebar.number_input(
+        "Base Revenue",
+        min_value=0.0,
+        step=10000.0,
+        key="base_revenue",
+        help="Starting revenue before scenario uplift is applied.",
+    )
+
+    st.sidebar.number_input(
+        "Margin %",
+        min_value=0.0,
+        max_value=100.0,
+        step=1.0,
+        key="margin_pct",
+        help="Used to estimate projected profit from projected revenue.",
+    )
+
+    st.sidebar.markdown("---")
+
     scenario_name = st.sidebar.text_input(
         "Scenario label",
         value=st.session_state["scenario_name"],
@@ -381,10 +418,7 @@ def render_sidebar(categories, markets):
     )
 
     saved_df = get_saved_scenarios(selected_category, selected_market, limit=100)
-
-    label_options = []
-    if not saved_df.empty:
-        label_options = saved_df["scenario_label"].astype(str).tolist()
+    label_options = saved_df["scenario_label"].astype(str).tolist() if not saved_df.empty else []
 
     selected_saved_label = st.sidebar.selectbox(
         "Saved scenario labels",
@@ -398,8 +432,8 @@ def render_sidebar(categories, markets):
     baseline_label = st.sidebar.selectbox(
         "Baseline scenario label",
         options=[""] + label_options,
-        index=([""] + label_options).index(st.session_state["baseline_scenario_id"])
-        if st.session_state["baseline_scenario_id"] in ([""] + label_options)
+        index=([""] + label_options).index(st.session_state["baseline_scenario_label"])
+        if st.session_state["baseline_scenario_label"] in ([""] + label_options)
         else 0,
         help="Pick a saved scenario label to compare against the current selected scenario.",
     )
@@ -415,7 +449,7 @@ def render_sidebar(categories, markets):
     st.session_state["selected_market"] = selected_market
     st.session_state["scenario_name"] = scenario_name
     st.session_state["confidence_mode"] = confidence_mode
-    st.session_state["baseline_scenario_id"] = baseline_label
+    st.session_state["baseline_scenario_label"] = baseline_label
 
     if reset_to_benchmark:
         seed_channel_spends_from_benchmarks(selected_category, selected_market)
@@ -440,6 +474,7 @@ def render_sidebar(categories, markets):
 
     return selected_category, selected_market, scenario_name, confidence_mode, baseline_label
 
+
 def render_inputs():
     st.subheader("1. 📥 Media Spend Inputs")
     st.caption("Enter the planned spend for each channel.")
@@ -450,23 +485,13 @@ def render_inputs():
         st.markdown("### Offline Media")
         st.caption("Broad-reach media typically used for awareness.")
         for channel in OFFLINE_CHANNELS:
-            st.number_input(
-                channel,
-                min_value=0.0,
-                step=1000.0,
-                key=f"spend_{channel}",
-            )
+            st.number_input(channel, min_value=0.0, step=1000.0, key=f"spend_{channel}")
 
     with col2:
         st.markdown("### Digital Media")
         st.caption("More targeted and performance-oriented channels.")
         for channel in DIGITAL_CHANNELS:
-            st.number_input(
-                channel,
-                min_value=0.0,
-                step=1000.0,
-                key=f"spend_{channel}",
-            )
+            st.number_input(channel, min_value=0.0, step=1000.0, key=f"spend_{channel}")
 
 
 def render_mix_summary():
@@ -484,14 +509,8 @@ def render_mix_summary():
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Total Spend", f"{total_spend:,.0f}")
-    c2.metric(
-        "Offline Spend",
-        f"{mix_df.loc[mix_df['channel_group'] == 'Offline', 'spend'].sum():,.0f}",
-    )
-    c3.metric(
-        "Digital Spend",
-        f"{mix_df.loc[mix_df['channel_group'] == 'Digital', 'spend'].sum():,.0f}",
-    )
+    c2.metric("Offline Spend", f"{mix_df.loc[mix_df['channel_group'] == 'Offline', 'spend'].sum():,.0f}")
+    c3.metric("Digital Spend", f"{mix_df.loc[mix_df['channel_group'] == 'Digital', 'spend'].sum():,.0f}")
 
     st.caption("This shows total budget and how it is split between Offline and Digital channels.")
 
@@ -533,7 +552,9 @@ def render_results(summary_df: pd.DataFrame, channel_df: pd.DataFrame, confidenc
 
     incremental_revenue = float(summary_row[f"incremental_revenue_{suffix}"])
     projected_total_revenue = float(summary_row[f"total_revenue_{suffix}"])
-    projected_profit = projected_total_revenue - float(summary_row["total_spend"])
+    base_revenue = float(summary_row["base_revenue"])
+    margin_pct = float(summary_row["margin_pct"])
+    projected_profit = (projected_total_revenue * (margin_pct / 100.0)) - float(summary_row["total_spend"])
 
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Total Spend", f"{float(summary_row['total_spend']):,.0f}")
@@ -543,7 +564,7 @@ def render_results(summary_df: pd.DataFrame, channel_df: pd.DataFrame, confidenc
 
     st.caption(
         f"Confidence mode is currently set to {confidence_mode}. "
-        "Projected Profit here is modeled projected revenue minus total media spend."
+        f"Projected Profit uses Base Revenue = {base_revenue:,.0f} and Margin = {margin_pct:.1f}%."
     )
 
     if not channel_df.empty:
@@ -612,25 +633,53 @@ def render_results(summary_df: pd.DataFrame, channel_df: pd.DataFrame, confidenc
             width="stretch",
             hide_index=True,
         )
-        st.caption(
-            "Efficiency Index compares contribution share to spend share. Above 1.00 means the channel contributes more than its share of spend."
-        )
+        st.caption("Efficiency Index compares contribution share to spend share. Above 1.00 means the channel contributes more than its share of spend.")
 
 
 def render_comparison_section(
-    baseline_scenario_id: str,
+    baseline_scenario_label: str,
     latest_scenario_id: str,
+    selected_category: str,
+    selected_market: str,
     confidence_mode: str,
+    history_df: pd.DataFrame,
 ):
-    if not baseline_scenario_id or not latest_scenario_id or baseline_scenario_id == latest_scenario_id:
+    if not baseline_scenario_label or not latest_scenario_id or history_df.empty:
         return
 
-    baseline_summary_df = get_latest_scenario_summary(baseline_scenario_id)
-    baseline_channel_df = get_latest_channel_results(baseline_scenario_id)
     current_summary_df = get_latest_scenario_summary(latest_scenario_id)
     current_channel_df = get_latest_channel_results(latest_scenario_id)
 
-    if baseline_summary_df.empty or current_summary_df.empty:
+    if current_summary_df.empty or current_channel_df.empty:
+        return
+
+    current_label = str(current_summary_df.iloc[0].get("scenario_label", ""))
+
+    baseline_candidates = history_df.loc[
+        history_df["scenario_label"].astype(str) == str(baseline_scenario_label)
+    ].copy()
+
+    if baseline_candidates.empty:
+        st.info("No baseline scenario found for the selected baseline label.")
+        return
+
+    if baseline_scenario_label == current_label:
+        baseline_candidates = baseline_candidates.loc[
+            baseline_candidates["scenario_id"].astype(str) != str(latest_scenario_id)
+        ]
+
+    if baseline_candidates.empty:
+        st.info("No previous baseline version available to compare against.")
+        return
+
+    baseline_candidates = baseline_candidates.sort_values("created_at", ascending=False)
+    baseline_scenario_id = str(baseline_candidates.iloc[0]["scenario_id"])
+
+    baseline_summary_df = get_latest_scenario_summary(baseline_scenario_id)
+    baseline_channel_df = get_latest_channel_results(baseline_scenario_id)
+
+    if baseline_summary_df.empty or baseline_channel_df.empty:
+        st.info("Baseline scenario details could not be loaded.")
         return
 
     suffix = mode_suffix(confidence_mode)
@@ -645,8 +694,11 @@ def render_comparison_section(
     base_revenue = float(base[f"total_revenue_{suffix}"])
     curr_revenue = float(curr[f"total_revenue_{suffix}"])
 
-    base_profit = base_revenue - base_spend
-    curr_profit = curr_revenue - curr_spend
+    base_margin_pct = float(base["margin_pct"])
+    curr_margin_pct = float(curr["margin_pct"])
+
+    base_profit = (base_revenue * (base_margin_pct / 100.0)) - base_spend
+    curr_profit = (curr_revenue * (curr_margin_pct / 100.0)) - curr_spend
 
     delta_spend = curr_spend - base_spend
     delta_revenue = curr_revenue - base_revenue
@@ -707,9 +759,7 @@ def render_benchmark_panel(category: str, market: str):
     bench_df = get_benchmark_rows(category, market)
 
     with st.expander("Benchmark assumptions", expanded=False):
-        st.caption(
-            "These are the benchmark assumptions currently used for the selected category and market."
-        )
+        st.caption("These are the benchmark assumptions currently used for the selected category and market.")
 
         if bench_df.empty:
             st.info("No benchmark assumptions found for this category and market.")
@@ -779,7 +829,7 @@ def render_scenario_history(category: str, market: str):
             make_history_chart(history_df, "projected_profit_mid", "Projected Profit by Scenario"),
             use_container_width=True,
         )
-        st.caption("Projected profit for each scenario, calculated as projected revenue minus media spend.")
+        st.caption("Projected profit for each scenario, calculated using base revenue, margin, and media spend.")
 
     show_df = history_df.copy()
     show_df["best_scenario"] = show_df["projected_profit_mid"].apply(
@@ -793,6 +843,8 @@ def render_scenario_history(category: str, market: str):
         "scenario_id",
         "scenario_note",
         "created_at",
+        "base_revenue",
+        "margin_pct",
         "total_spend",
         "incremental_revenue_mid",
         "total_revenue_mid",
@@ -812,6 +864,8 @@ def render_scenario_history(category: str, market: str):
     st.markdown("#### Scenario Comparison Table")
     styled_df = show_df[display_cols].style.format(
         {
+            "base_revenue": "{:,.0f}",
+            "margin_pct": "{:.1f}%",
             "total_spend": "{:,.0f}",
             "incremental_revenue_mid": "{:,.0f}",
             "total_revenue_mid": "{:,.0f}",
@@ -820,22 +874,13 @@ def render_scenario_history(category: str, market: str):
         }
     ).map(style_change_vs_first, subset=["profit_change_vs_first_pct"])
 
-    st.dataframe(
-        styled_df,
-        width="stretch",
-        hide_index=True,
-    )
-    st.caption(
-        "Profit Change vs First % compares projected profit against the first scenario run for this category and market. "
-        "Green means projected profit increased. Red means projected profit decreased."
-    )
+    st.dataframe(styled_df, width="stretch", hide_index=True)
+    st.caption("Profit Change vs First % compares projected profit against the first scenario run for this category and market.")
 
 
 def render_ai_insights(category: str, market: str, summary_df: pd.DataFrame, channel_df: pd.DataFrame, history_df: pd.DataFrame):
     st.subheader("6. 🤖 AI Insights")
-    st.caption(
-        "Generate plain-English commentary on the current scenario using the selected scenario results and recent scenario history."
-    )
+    st.caption("Generate plain-English commentary on the current scenario using the selected scenario results and recent scenario history.")
 
     if summary_df.empty or channel_df.empty:
         st.info("Run a scenario first to generate AI insights.")
@@ -860,9 +905,7 @@ def render_ai_insights(category: str, market: str, summary_df: pd.DataFrame, cha
     insights_text = st.session_state.get("ai_insights_text")
     if insights_text:
         st.markdown(insights_text)
-        st.caption(
-            "These insights are AI-generated commentary based on the scenario data shown in the app. Treat them as directional suggestions."
-        )
+        st.caption("These insights are AI-generated commentary based on the scenario data shown in the app. Treat them as directional suggestions.")
 
 
 def main():
@@ -954,7 +997,7 @@ def main():
         "Treat outputs as directional estimates."
     )
 
-    selected_category, selected_market, scenario_name, confidence_mode, baseline_scenario_id = render_sidebar(categories, markets)
+    selected_category, selected_market, scenario_name, confidence_mode, baseline_scenario_label = render_sidebar(categories, markets)
 
     current_key = f"{selected_category}|{selected_market}"
     last_key = st.session_state.get("last_category_market_key")
@@ -981,7 +1024,8 @@ def main():
             scenario_id,
             scenario_label,
             scenario_note,
-)
+        )
+
         with st.spinner("Running scenario..."):
             run_and_store_scenario(inputs_df)
 
@@ -1003,12 +1047,15 @@ def main():
             channel_df = get_latest_channel_results(latest_scenario_id)
             render_results(summary_df, channel_df, confidence_mode)
 
-        if baseline_scenario_id:
+        if baseline_scenario_label:
             with st.container(border=True):
                 render_comparison_section(
-                    baseline_scenario_id=baseline_scenario_id,
+                    baseline_scenario_label=baseline_scenario_label,
                     latest_scenario_id=latest_scenario_id,
+                    selected_category=selected_category,
+                    selected_market=selected_market,
                     confidence_mode=confidence_mode,
+                    history_df=history_df,
                 )
     else:
         st.info("No scenario run yet in this session.")

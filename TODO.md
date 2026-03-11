@@ -4,13 +4,10 @@ Use this file to track tasks, ideas, and reminders for the mmm-demo project.
 
 ## High Priority
 
-- [x] Add baseline vs selected scenario comparison
-- [x] Let user load a saved scenario as baseline
-- [x] Show delta in spend, projected revenue, and projected profit
 - [ ] Add export to CSV for scenario history and current results
-- [x] Add benchmark assumptions panel
-- [x] Add confidence mode selector: Conservative / Base / Aggressive
-- [x] Add reset to benchmark mix button
+- [ ] User adds base values???
+- [ ] Reachid juurde
+
 
 ## Medium Priority
 

@@ -137,6 +137,8 @@ def save_scenario_inputs(inputs_df: pd.DataFrame) -> None:
         "channel_group",
         "channel",
         "spend",
+        "base_revenue",
+        "margin_pct",
     ]
 
     for col in expected_cols:
@@ -165,6 +167,8 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
         "channel_group",
         "channel",
         "spend",
+        "base_revenue",
+        "margin_pct",
     }
     missing = required - set(inputs_df.columns)
     if missing:
@@ -175,6 +179,8 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     scenario_id = str(inputs_df["scenario_id"].iloc[0])
     scenario_label = str(inputs_df["scenario_label"].iloc[0])
     scenario_note = str(inputs_df["scenario_note"].iloc[0])
+    base_revenue = float(inputs_df["base_revenue"].iloc[0])
+    margin_pct = float(inputs_df["margin_pct"].iloc[0])
 
     if inputs_df["scenario_id"].nunique() != 1:
         raise ValueError("inputs_df must contain exactly one scenario_id")
@@ -201,6 +207,10 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
     result_df["created_at"] = pd.to_datetime(result_df["created_at"], utc=True)
     result_df["scenario_label"] = scenario_label
     result_df["scenario_note"] = scenario_note
+    base_revenue = float(inputs_df["base_revenue"].iloc[0])
+    margin_pct = float(inputs_df["margin_pct"].iloc[0])
+    result_df["base_revenue"] = base_revenue
+    result_df["margin_pct"] = margin_pct
 
     ordered_cols = [
         "scenario_id",
@@ -213,6 +223,8 @@ def run_and_store_scenario(inputs_df: pd.DataFrame) -> str:
         "channel",
         "subchannel",
         "spend",
+        "base_revenue",
+        "margin_pct",
         "incremental_revenue_low",
         "incremental_revenue_mid",
         "incremental_revenue_high",
@@ -257,6 +269,8 @@ def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
         scenario_id,
         ANY_VALUE(scenario_label) AS scenario_label,
         ANY_VALUE(scenario_note) AS scenario_note,
+        ANY_VALUE(base_revenue) AS base_revenue,
+        ANY_VALUE(margin_pct) AS margin_pct,
         category,
         market,
         SUM(spend) AS total_spend,
@@ -265,21 +279,23 @@ def get_latest_scenario_summary(scenario_id: str) -> pd.DataFrame:
         SUM(incremental_revenue_high) AS incremental_revenue_high
       FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
       WHERE scenario_id = '{scenario_id}'
-      GROUP BY 1,4,5
+      GROUP BY 1,6,7
     )
     SELECT
       a.scenario_id,
       a.scenario_label,
       a.scenario_note,
+      a.base_revenue,
+      a.margin_pct,
       a.category,
       a.market,
       a.total_spend,
       a.incremental_revenue_low,
       a.incremental_revenue_mid,
       a.incremental_revenue_high,
-      b.baseline_revenue + a.incremental_revenue_low AS total_revenue_low,
-      b.baseline_revenue + a.incremental_revenue_mid AS total_revenue_mid,
-      b.baseline_revenue + a.incremental_revenue_high AS total_revenue_high
+      a.base_revenue + a.incremental_revenue_low AS total_revenue_low,
+      a.base_revenue + a.incremental_revenue_mid AS total_revenue_mid,
+      a.base_revenue + a.incremental_revenue_high AS total_revenue_high
     FROM agg a
     JOIN base b
       ON a.category = b.category
@@ -325,19 +341,13 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
     client = _get_client()
 
     query = f"""
-    WITH base AS (
-      SELECT
-        category,
-        market,
-        AVG(revenue) AS baseline_revenue
-      FROM `{cfg["project_id"]}.{cfg["dataset"]}.demo_business_kpis`
-      GROUP BY 1,2
-    ),
-    agg AS (
+    WITH agg AS (
       SELECT
         scenario_id,
         ANY_VALUE(scenario_label) AS scenario_label,
         ANY_VALUE(scenario_note) AS scenario_note,
+        ANY_VALUE(base_revenue) AS base_revenue,
+        ANY_VALUE(margin_pct) AS margin_pct,
         category,
         market,
         MIN(created_at) AS created_at,
@@ -348,28 +358,27 @@ def get_scenario_history_for_category_market(category: str, market: str, limit: 
       FROM `{cfg["project_id"]}.{cfg["dataset"]}.scenario_results`
       WHERE category = '{category}'
         AND market = '{market}'
-      GROUP BY 1,4,5
+      GROUP BY 1,6,7
     ),
     scenario_totals AS (
       SELECT
-        a.scenario_id,
-        a.scenario_label,
-        a.scenario_note,
-        a.category,
-        a.market,
-        a.created_at,
-        a.total_spend,
-        a.incremental_revenue_low,
-        a.incremental_revenue_mid,
-        a.incremental_revenue_high,
-        b.baseline_revenue + a.incremental_revenue_low AS total_revenue_low,
-        b.baseline_revenue + a.incremental_revenue_mid AS total_revenue_mid,
-        b.baseline_revenue + a.incremental_revenue_high AS total_revenue_high,
-        (b.baseline_revenue + a.incremental_revenue_mid) - a.total_spend AS projected_profit_mid
-      FROM agg a
-      JOIN base b
-        ON a.category = b.category
-       AND a.market = b.market
+        scenario_id,
+        scenario_label,
+        scenario_note,
+        category,
+        market,
+        created_at,
+        base_revenue,
+        margin_pct,
+        total_spend,
+        incremental_revenue_low,
+        incremental_revenue_mid,
+        incremental_revenue_high,
+        base_revenue + incremental_revenue_low AS total_revenue_low,
+        base_revenue + incremental_revenue_mid AS total_revenue_mid,
+        base_revenue + incremental_revenue_high AS total_revenue_high,
+        ((base_revenue + incremental_revenue_mid) * (margin_pct / 100.0)) - total_spend AS projected_profit_mid
+      FROM agg
     ),
     first_scenario AS (
       SELECT

@@ -45,7 +45,9 @@ CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.scenario_inputs` (
   market STRING,
   channel_group STRING,
   channel STRING,
-  spend FLOAT64
+  spend FLOAT64,
+  base_revenue FLOAT64,
+  margin_pct FLOAT64 FLOAT64
 );
 
 CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.scenario_results` (
@@ -71,5 +73,7 @@ CREATE TABLE IF NOT EXISTS `data-uplaod.mmm_demo.scenario_results` (
   total_revenue_mid FLOAT64,
   total_revenue_high FLOAT64,
   confidence_score FLOAT64,
-  source_label STRING
+  source_label STRING,
+  base_revenue FLOAT64,
+  margin_pct FLOAT64 FLOAT64
 );
