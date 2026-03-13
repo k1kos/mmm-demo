@@ -1,5 +1,6 @@
 google-cloud-bigquery>=3.25,<4
 google-api-core>=2.19,<3
+db-dtypes>=1.2,<2
 pandas>=2.2,<3
 pyarrow>=15,<24
 python-dotenv>=1.0,<2
