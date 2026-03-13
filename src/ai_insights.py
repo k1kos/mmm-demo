@@ -1,9 +1,10 @@
 import json
-import os
 from typing import Any
 
 import pandas as pd
 from openai import OpenAI
+
+from src.config import get_secret
 
 
 def _format_channel_rows(channel_df: pd.DataFrame) -> list[dict[str, Any]]:
@@ -66,7 +67,7 @@ def build_ai_payload(
 
 
 def generate_ai_insights(payload: dict[str, Any], model: str = "gpt-5.4") -> str:
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = get_secret("OPENAI_API_KEY")
     if not api_key:
         raise ValueError("OPENAI_API_KEY is missing")
 

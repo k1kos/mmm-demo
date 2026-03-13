@@ -1,7 +1,10 @@
 from google.cloud import bigquery
 from google.api_core.retry import Retry
+from google.oauth2 import service_account
 import pandas as pd
 import streamlit as st
+
+from src.config import get_gcp_service_account_info
 
 BQ_RETRY = Retry(
     initial=1.0,
@@ -13,6 +16,13 @@ BQ_RETRY = Retry(
 
 @st.cache_resource
 def get_client(project_id: str) -> bigquery.Client:
+    service_account_info = get_gcp_service_account_info()
+    if service_account_info:
+        credentials = service_account.Credentials.from_service_account_info(
+            service_account_info
+        )
+        return bigquery.Client(project=project_id, credentials=credentials)
+
     return bigquery.Client(project=project_id)
 
 

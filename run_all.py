@@ -7,11 +7,11 @@ from src.main_load_benchmarks import main as load_benchmarks
 
 
 def main() -> None:
-    print("Step 1/3: Loading benchmark assumptions...")
-    load_benchmarks()
+    #print("Step 1/3: Loading benchmark assumptions...")
+    #load_benchmarks()
 
-    print("Step 2/3: Generating demo media and KPI data...")
-    generate_demo_data()
+    #print("Step 2/3: Generating demo media and KPI data...")
+    #generate_demo_data()
 
     print("Step 3/3: Starting Streamlit app...")
     app_path = Path(__file__).resolve().parent / "app.py"
