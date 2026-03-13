@@ -525,7 +525,7 @@ def render_mix_summary():
                 title="Spend by Channel",
                 color_col="channel_group",
             ),
-            use_container_width=True,
+            width="stretch",
         )
         st.caption("Budget allocated to each media channel.")
 
@@ -533,7 +533,7 @@ def render_mix_summary():
         group_df = mix_df.groupby("channel_group", as_index=False)["spend"].sum()
         st.altair_chart(
             make_group_split_chart(group_df, "Offline vs Digital Split"),
-            use_container_width=True,
+            width="stretch",
         )
         st.caption("Budget split between Offline and Digital groups.")
 
@@ -586,7 +586,7 @@ def render_results(summary_df: pd.DataFrame, channel_df: pd.DataFrame, confidenc
                     title=f"Incremental Revenue by Channel ({mode_label})",
                     color_col="channel_group",
                 ),
-                use_container_width=True,
+                width="stretch",
             )
             st.caption("Selected-mode estimate of incremental revenue contribution by channel.")
 
@@ -601,7 +601,7 @@ def render_results(summary_df: pd.DataFrame, channel_df: pd.DataFrame, confidenc
                     color_col="channel_group",
                     value_format=".2f",
                 ),
-                use_container_width=True,
+                width="stretch",
             )
             st.caption("Benchmark-based ROI assumption used for each channel.")
 
@@ -723,7 +723,7 @@ def render_comparison_section(
                 comparison_df.sort_values("delta_projected_channel_profit", ascending=False),
                 f"Delta Channel Profit vs Baseline ({mode_label})",
             ),
-            use_container_width=True,
+            width="stretch",
         )
         st.caption("Shows which channels improved or hurt projected profit versus the selected baseline.")
 
@@ -820,14 +820,14 @@ def render_scenario_history(category: str, market: str):
     with col1:
         st.altair_chart(
             make_history_chart(history_df, "total_revenue_mid", "Projected Revenue by Scenario"),
-            use_container_width=True,
+            width="stretch",
         )
         st.caption("Projected total revenue for each saved scenario.")
 
     with col2:
         st.altair_chart(
             make_history_chart(history_df, "projected_profit_mid", "Projected Profit by Scenario"),
-            use_container_width=True,
+            width="stretch",
         )
         st.caption("Projected profit for each scenario, calculated using base revenue, margin, and media spend.")
 
