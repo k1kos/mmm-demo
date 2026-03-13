@@ -17,13 +17,16 @@ BQ_RETRY = Retry(
 @st.cache_resource
 def get_client(project_id: str) -> bigquery.Client:
     service_account_info = get_gcp_service_account_info()
-    if service_account_info:
-        credentials = service_account.Credentials.from_service_account_info(
-            service_account_info
+    if not service_account_info:
+        raise ValueError(
+            "BigQuery credentials are missing. Add the service account JSON to "
+            "Streamlit secrets as [gcp_service_account] or provide GOOGLE_CREDENTIALS_JSON."
         )
-        return bigquery.Client(project=project_id, credentials=credentials)
 
-    return bigquery.Client(project=project_id)
+    credentials = service_account.Credentials.from_service_account_info(
+        service_account_info
+    )
+    return bigquery.Client(project=project_id, credentials=credentials)
 
 
 def load_dataframe(

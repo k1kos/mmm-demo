@@ -34,21 +34,50 @@ def get_secret(key: str, default=None):
 
 
 def get_gcp_service_account_info() -> dict | None:
+    required_fields = {
+        "type",
+        "project_id",
+        "private_key_id",
+        "private_key",
+        "client_email",
+        "client_id",
+        "auth_uri",
+        "token_uri",
+        "auth_provider_x509_cert_url",
+        "client_x509_cert_url",
+    }
+
     try:
         if "gcp_service_account" in st.secrets:
-            return dict(st.secrets["gcp_service_account"])
+            secret_value = st.secrets["gcp_service_account"]
+            payload = dict(secret_value)
+            if required_fields.issubset(payload):
+                return payload
+    except Exception:
+        pass
+
+    try:
+        flat_payload = {field: st.secrets[field] for field in required_fields if field in st.secrets}
+        if required_fields.issubset(flat_payload):
+            if "universe_domain" in st.secrets:
+                flat_payload["universe_domain"] = st.secrets["universe_domain"]
+            return flat_payload
     except Exception:
         pass
 
     raw_json = get_secret("GOOGLE_CREDENTIALS_JSON")
     if raw_json:
-        return json.loads(raw_json)
+        payload = json.loads(raw_json)
+        if required_fields.issubset(payload):
+            return payload
 
     credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if credentials_path:
         path = Path(credentials_path)
         if path.exists():
-            return json.loads(path.read_text(encoding="utf-8"))
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            if required_fields.issubset(payload):
+                return payload
 
     for candidate in ROOT.glob("*.json"):
         try:
